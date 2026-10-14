@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tablero Kanban · CFGS 3D</title>
+
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+
+  <link rel="stylesheet" href="/css/kanban.css" />
+</head>
+<body>
+
+<div class="kanban-container">
+
+  <!-- Navegación y Cabecera Superior -->
+  <header class="kanban-topbar">
+    <div class="topbar-nav">
+      <a href="/index.html" class="btn-back-nav" title="Volver a la vista del horario">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+        <span>Volver al Horario</span>
+      </a>
+
+      <div class="title-group">
+        <h1>Tablero Kanban</h1>
+        <p>Entregas de Aules, exámenes oficiales y tareas personales</p>
+      </div>
+    </div>
+
+    <div class="topbar-actions">
+      <!-- Botón para sincronizar entre dispositivos -->
+      <button type="button" class="btn-sync-action" id="btn-open-sync" title="Vincular con tu móvil u otro dispositivo" aria-haspopup="dialog" onclick="window.__openSyncModal && window.__openSyncModal()">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+        </svg>
+        <span>Sincronizar</span>
+      </button>
+
+      <!-- Botón para crear tareas del alumno -->
+      <button type="button" class="btn-primary-action" id="btn-add-personal-task" aria-haspopup="dialog">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+        </svg>
+        <span>Tarea personal</span>
+      </button>
+
+      <!-- Selector de Modo de Color (Sincronizado con index.html) -->
+      <div class="theme-selector" role="group" aria-label="Modo de color">
+        <button type="button" class="theme-btn" data-mode="auto">Auto</button>
+        <button type="button" class="theme-btn" data-mode="dark">Oscuro</button>
+        <button type="button" class="theme-btn" data-mode="light">Claro</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Barra de Herramientas: Buscador y Leyenda -->
+  <section class="kanban-toolbar" aria-label="Herramientas del tablero">
+    <div class="search-box-wrapper">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+        <path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+      </svg>
+      <input
+        type="search"
+        id="kanban-search-input"
+        class="search-input"
+        placeholder="Buscar tarea, examen o módulo…"
+        aria-label="Buscar tareas en el tablero"
+      />
+    </div>
+
+    <div class="board-legend-hints" aria-hidden="true">
+      <div class="legend-hint-item">
+        <span class="legend-hint-box exam"></span>
+        <span>Exámenes oficiales</span>
+      </div>
+      <div class="legend-hint-item">
+        <span class="legend-hint-box aules"></span>
+        <span>Aules Moodle</span>
+      </div>
+      <div class="legend-hint-item">
+        <span class="legend-hint-box personal"></span>
+        <span>Tareas personales</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tablero Kanban de 3 Columnas Fijas -->
+  <main class="kanban-board-grid" aria-label="Tablero de tareas">
+    
+    <!-- Columna 1: Pendiente -->
+    <section class="kanban-column" id="column-pending" data-column="pending" aria-label="Columna de tareas pendientes">
+      <header class="column-header">
+        <div class="column-title-box">
+          <span class="col-status-dot pending" aria-hidden="true"></span>
+          <h2>Pendiente</h2>
+        </div>
+        <span class="column-counter-badge" id="count-pending" aria-label="Número de tareas pendientes">0</span>
+      </header>
+      <div class="column-cards-list" role="list"></div>
+    </section>
+
+    <!-- Columna 2: Trabajando -->
+    <section class="kanban-column" id="column-in-progress" data-column="in-progress" aria-label="Columna de tareas en curso">
+      <header class="column-header">
+        <div class="column-title-box">
+          <span class="col-status-dot progress" aria-hidden="true"></span>
+          <h2>Trabajando</h2>
+        </div>
+        <span class="column-counter-badge" id="count-in-progress" aria-label="Número de tareas en curso">0</span>
+      </header>
+      <div class="column-cards-list" role="list"></div>
+    </section>
+
+    <!-- Columna 3: Hecho -->
+    <section class="kanban-column" id="column-done" data-column="done" aria-label="Columna de tareas completadas">
+      <header class="column-header">
+        <div class="column-title-box">
+          <span class="col-status-dot done" aria-hidden="true"></span>
+          <h2>Hecho</h2>
+        </div>
+        <span class="column-counter-badge" id="count-done" aria-label="Número de tareas completadas">0</span>
+      </header>
+      <div class="column-cards-list" role="list"></div>
+    </section>
+
+  </main>
+
+  <!-- Panel Inferior de Notas Rápidas y Recordatorios (Colapsable) -->
+  <section id="kanban-notes-panel" class="kanban-notes-section" aria-label="Panel de notas y recordatorios">
+    <header class="notes-header-bar">
+      <div class="notes-header-left">
+        <h2>Notas Rápidas y Recordatorios</h2>
+        <span id="notes-count-badge" class="notes-badge">0 notas</span>
+      </div>
+
+      <div class="notes-header-actions">
+        <button type="button" class="btn-secondary-action" id="btn-add-note">
+          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+            <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          </svg>
+          <span>Nueva nota</span>
+        </button>
+
+        <button
+          type="button"
+          class="btn-collapse-toggle"
+          id="btn-toggle-notes"
+          aria-expanded="true"
+          aria-controls="notes-grid"
+          title="Plegar / Desplegar panel de notas"
+        >
+          <span class="toggle-icon">▼</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="notes-grid-wrapper">
+      <div id="notes-grid" class="notes-grid"></div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Modal: Añadir o Editar Tarea Personal -->
+<div class="modal-backdrop" id="personal-task-modal" role="dialog" aria-modal="true" aria-labelledby="task-modal-heading" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h2 class="modal-title" id="task-modal-heading">Nueva Tarea Personal</h2>
+      <button type="button" class="modal-close" data-close-modal="personal-task-modal" aria-label="Cerrar diálogo">&times;</button>
+    </div>
+
+    <form id="personal-task-form">
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="task-title-input">Título de la tarea *</label>
+          <input
+            type="text"
+            id="task-title-input"
+            class="form-input"
+            placeholder="Ej: Comprar pendrive USB 3.0 / Practicar modelado"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="task-mod-select">Módulo / Asignatura (opcional)</label>
+          <select id="task-mod-select" class="form-select">
+            <option value="">Sin módulo / General</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="task-date-input">Fecha límite (opcional)</label>
+            <input type="date" id="task-date-input" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label for="task-time-input">Hora (opcional)</label>
+            <input type="time" id="task-time-input" class="form-input" value="23:59" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="task-notes-input">Observaciones / Detalles</label>
+          <textarea
+            id="task-notes-input"
+            class="form-textarea"
+            placeholder="Añade enlaces, requisitos o detalles de la tarea…"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="modal-btn" data-close-modal="personal-task-modal">Cancelar</button>
+        <button type="submit" class="modal-btn primary">Guardar tarea</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Sincronización en la Nube (Vincular dispositivos con Pairing Handshake) -->
+<div class="modal-backdrop" id="sync-modal" role="dialog" aria-modal="true" aria-labelledby="sync-modal-heading" aria-hidden="true">
+  <div class="modal-dialog sync-modal-dialog">
+    <div class="modal-header">
+      <div class="modal-title-box">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM10 17l-3.5-3.5 1.41-1.41L10 14.17l5.59-5.59L17 10l-7 7z"/>
+        </svg>
+        <h2 class="modal-title" id="sync-modal-heading">Vincular dispositivos</h2>
+      </div>
+      <button type="button" class="modal-close" data-close-sync-modal aria-label="Cerrar diálogo">&times;</button>
+    </div>
+
+    <!-- Pestañas de modo -->
+    <div class="sync-tabs-bar" role="tablist">
+      <button type="button" class="sync-tab-btn active" id="tab-sync-share" role="tab" aria-selected="true">
+        Compartir mi tablero
+      </button>
+      <button type="button" class="sync-tab-btn" id="tab-sync-claim" role="tab" aria-selected="false">
+        Canjear código
+      </button>
+    </div>
+
+    <!-- Vista 1: Compartir con otro equipo (Enlace directo instantáneo o PIN temporal) -->
+    <div class="modal-body sync-modal-body" id="view-sync-share">
+      <div id="sync-share-content">
+        <p class="sync-step-instruction">
+          Elige cómo deseas transferir tu tablero a tu otro equipo o móvil:
+        </p>
+
+        <!-- Método 1: Enlace directo instantáneo (Zero-Knowledge y sin servidor) -->
+        <div class="sync-direct-link-card">
+          <div class="sync-direct-link-header">
+            <span class="sync-method-badge">Recomendado</span>
+            <strong>Enlace directo instantáneo</strong>
+          </div>
+          <p class="sync-direct-desc">Copia el enlace y ábrelo en tu otro equipo o móvil para sincronizar en 1 clic:</p>
+
+          <div class="sync-link-actions">
+            <button type="button" class="btn-copy-sync-link" id="btn-copy-sync-link" title="Copiar enlace directo al portapapeles">
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+              <span>Copiar enlace</span>
+            </button>
+            <span id="copy-sync-feedback" class="copy-feedback is-hidden" aria-live="polite">✓ ¡Copiado!</span>
+          </div>
+        </div>
+
+        <div class="sync-divider-line">
+          <span>o mediante código PIN de 6 dígitos</span>
+        </div>
+
+        <div class="sync-pin-container">
+          <div class="sync-code-box" id="sync-code-display">··· ···</div>
+          
+          <div class="sync-countdown-bar" role="progressbar" aria-label="Tiempo restante de validez del código">
+            <div class="sync-countdown-fill" id="sync-timer-progress"></div>
+          </div>
+          
+          <div class="sync-timer-meta">
+            <span id="sync-timer-text">Caduca en 05:00</span>
+          </div>
+        </div>
+
+        <div class="sync-status-indicator" id="sync-status-msg" aria-live="polite">
+          <span class="spinner-dot"></span> Esperando conexión…
+        </div>
+
+        <div class="sync-expired-alert is-hidden" id="sync-expired-msg">
+          <span>El código ha caducado por seguridad.</span>
+          <button type="button" class="btn-regen-pin" id="btn-regen-pin">🔄 Generar nuevo código</button>
+        </div>
+      </div>
+
+      <!-- Pantalla de confirmación y cierre automático -->
+      <div class="sync-success-screen is-hidden" id="sync-share-success" role="alert" aria-live="polite">
+        <div class="sync-success-icon" aria-hidden="true">✓</div>
+        <h3 class="sync-success-title">¡Dispositivo enlazado con éxito!</h3>
+        <p class="sync-success-desc">Tus tareas, notas y columnas se han transferido correctamente.</p>
+        <span class="sync-closing-hint">Cerrando ventana automáticamente…</span>
+      </div>
+    </div>
+
+    <!-- Vista 2: Canjear código recibido del otro equipo -->
+    <div class="modal-body sync-modal-body is-hidden" id="view-sync-claim">
+      <p class="sync-step-instruction">
+        Introduce el PIN de 6 dígitos o pega el enlace recibido de tu otro equipo:
+      </p>
+
+      <form id="form-sync-claim" class="sync-claim-form">
+        <div class="form-group">
+          <label for="input-claim-pin" class="sr-only">Código PIN o enlace de sincronización</label>
+          <input
+            type="text"
+            id="input-claim-pin"
+            class="input-claim-code"
+            placeholder="000 000"
+            maxlength="4000"
+            autocomplete="off"
+            required
+          />
+        </div>
+
+        <div id="claim-error-msg" class="sync-form-error is-hidden" role="alert"></div>
+        <div id="claim-success-msg" class="sync-form-success is-hidden" role="status"></div>
+
+        <button type="submit" class="modal-btn primary btn-claim-submit" id="btn-submit-claim">
+          Canjear y sincronizar
+        </button>
+
+        <p class="sync-input-hint">
+          💡 Puedes escribir los 6 dígitos o pegar directamente el enlace de sincronización completo.
+        </p>
+      </form>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="modal-btn" data-close-sync-modal>Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirmar Importación de Tablero Compartido entrante por enlace -->
+<div class="modal-backdrop" id="incoming-sync-modal" role="dialog" aria-modal="true" aria-labelledby="incoming-sync-title" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div class="modal-title-box">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM10 17l-3.5-3.5 1.41-1.41L10 14.17l5.59-5.59L17 10l-7 7z"/>
+        </svg>
+        <h2 class="modal-title" id="incoming-sync-title">Sincronizar Tablero Compartido</h2>
+      </div>
+      <button type="button" class="modal-close" data-close-incoming-sync aria-label="Cerrar diálogo">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p id="incoming-sync-desc" class="sync-incoming-text">
+        Se ha recibido un tablero mediante enlace directo.
+      </p>
+      <div id="incoming-sync-stats" class="sync-incoming-stats"></div>
+      <p class="sync-incoming-warning">
+        Al aceptar, se actualizarán las tareas personales, notas y el estado de las columnas en este navegador.
+      </p>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn" data-close-incoming-sync>Cancelar</button>
+      <button type="button" class="modal-btn primary" id="btn-confirm-incoming-sync">Importar y sincronizar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Detalle de Entrega de Aules con Resumen Inteligente -->
+<div class="modal-backdrop" id="assignment-detail-modal" role="dialog" aria-modal="true" aria-labelledby="assignment-detail-title" aria-hidden="true">
+  <div class="modal-dialog assignment-detail-dialog">
+    <div class="modal-header">
+      <div class="modal-title-box">
+        <span class="badge badge-aules" id="assignment-detail-type-badge">📚 Aules</span>
+        <span id="assignment-detail-badge-sub" class="badge badge-subject"></span>
+      </div>
+      <button type="button" class="modal-close" data-close-assignment-modal aria-label="Cerrar diálogo">&times;</button>
+    </div>
+    <div class="modal-body assignment-modal-body">
+      <h2 class="assignment-modal-title" id="assignment-detail-title"></h2>
+
+      <div class="assignment-meta-row">
+        <div class="assignment-due-badge" id="assignment-detail-due"></div>
+        <div class="assignment-urgency-badge" id="assignment-detail-urgency"></div>
+      </div>
+
+      <!-- Sección Resumen IA / Objetivo -->
+      <div class="assignment-summary-section">
+        <div class="assignment-section-header">
+          <span class="summary-icon" id="assignment-summary-icon" aria-hidden="true">⚡</span>
+          <h3 id="assignment-detail-section-heading">Resumen de la entrega</h3>
+          <span class="badge badge-ai-source" id="assignment-detail-ai-source">Workers AI</span>
+        </div>
+        <p class="assignment-summary-p" id="assignment-detail-paragraph"></p>
+      </div>
+
+      <!-- Sección Entregables Requeridos -->
+      <div class="assignment-deliverables-section" id="assignment-deliverables-box">
+        <h4 class="deliverables-heading">📦 Archivos o formatos requeridos:</h4>
+        <div class="deliverables-list" id="assignment-detail-deliverables"></div>
+      </div>
+
+      <!-- Sección Enunciado original plegable -->
+      <details class="assignment-full-details" id="assignment-full-details-wrapper">
+        <summary class="assignment-full-summary">Ver enunciado original del profesor</summary>
+        <div class="assignment-original-text" id="assignment-detail-original"></div>
+      </details>
+    </div>
+
+    <div class="modal-actions assignment-modal-actions">
+      <button type="button" class="modal-btn" data-close-assignment-modal>Cerrar</button>
+      <a href="#" target="_blank" rel="noopener noreferrer" class="modal-btn primary btn-go-aules" id="assignment-detail-link">
+        <span id="assignment-detail-link-text">Ir a la entrega en Aules</span>
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <path fill="currentColor" d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3m-2 16H5V5h7V3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7h-2v7z"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="/src/kanban/kanban.js"></script>
+</body>
+</html>

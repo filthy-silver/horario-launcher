@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Horario Launcher · Asistente Multi-Curso y Despliegue Cloudflare Pages</title>
+  
+  <link rel="stylesheet" href="./css/wizard.css" />
+  <!-- JSZip para empaquetado 100% en cliente sin backend -->
+  <script src="./vendor/jszip.min.js"></script>
+</head>
+<body>
+
+  <!-- Cabecera principal -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-container">
+        <svg class="brand-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
+        </svg>
+        <div>
+          <h1 class="brand-title">Horario Launcher</h1>
+          <p class="brand-subtitle">Generador multi-curso autónomo para Cloudflare Pages</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <button type="button" class="btn btn-secondary" id="btn-load-demo" title="Cargar plantilla de demostración">
+          <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+          </svg>
+          <span>Cargar Ejemplo</span>
+        </button>
+
+        <button type="button" class="btn btn-secondary" id="btn-theme-toggle" title="Cambiar tema de color" aria-label="Cambiar tema de color">
+          <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenido principal del Asistente -->
+  <main class="wizard-main">
+
+    <!-- Barra de progreso / Pasos -->
+    <nav class="stepper-nav" aria-label="Pasos de configuración">
+      <button type="button" class="step-item active" data-step="1">
+        <span class="step-badge">1</span>
+        <span>Curso y Centro</span>
+      </button>
+      <button type="button" class="step-item" data-step="2">
+        <span class="step-badge">2</span>
+        <span>Franjas Horarias</span>
+      </button>
+      <button type="button" class="step-item" data-step="3">
+        <span class="step-badge">3</span>
+        <span>Asignaturas</span>
+      </button>
+      <button type="button" class="step-item" data-step="4">
+        <span class="step-badge">4</span>
+        <span>Cuadrícula Semanal</span>
+      </button>
+      <button type="button" class="step-item" data-step="5">
+        <span class="step-badge">5</span>
+        <span>Descarga y Despliegue</span>
+      </button>
+    </nav>
+
+    <!-- Paso 1: Datos del Curso y Centro -->
+    <section class="step-content-card" id="step-pane-1">
+      <div class="step-header">
+        <h2 class="step-title">Identificación del Curso y Centro</h2>
+        <p class="step-desc">Introduce los datos generales de la titulación, curso escolar y centro educativo.</p>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label for="input-course-name">Nombre completo del Curso / Ciclo</label>
+          <input type="text" id="input-course-name" class="form-input" placeholder="Ej: Animaciones 3D, Juegos y Entornos Interactivos" required />
+          <span class="input-hint">Título oficial del curso o ciclo formativo</span>
+        </div>
+
+        <div class="form-group">
+          <label for="input-course-short">Siglas o Nombre Corto</label>
+          <input type="text" id="input-course-short" class="form-input" placeholder="Ej: CFGS 3D o 2º DAW" required />
+          <span class="input-hint">Nombre abreviado que aparecerá en botones y cabeceras</span>
+        </div>
+
+        <div class="form-group">
+          <label for="input-course-id">Identificador único (Slug)</label>
+          <input type="text" id="input-course-id" class="form-input" placeholder="Ej: cfgs-3d" pattern="^[a-z0-9_-]+$" required />
+          <span class="input-hint">Solo letras minúsculas, números y guiones (sin espacios)</span>
+        </div>
+
+        <div class="form-group">
+          <label for="input-institution">Centro Educativo / Instituto</label>
+          <input type="text" id="input-institution" class="form-input" placeholder="Ej: IES Francesc Tàrrega" />
+        </div>
+
+        <div class="form-group">
+          <label for="input-academic-year">Curso Académico</label>
+          <input type="text" id="input-academic-year" class="form-input" placeholder="2026/2027" value="2026/2027" />
+        </div>
+
+        <div class="form-group">
+          <label for="input-term-dates">Periodo Lectivo (Inicio y Fin)</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="date" id="input-term-start" class="form-input" value="2026-09-08" style="flex: 1;" />
+            <input type="date" id="input-term-end" class="form-input" value="2027-06-22" style="flex: 1;" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Paso 2: Franjas Horarias y Recreos -->
+    <section class="step-content-card" id="step-pane-2" style="display: none;">
+      <div class="step-header">
+        <h2 class="step-title">Franjas Horarias y Descansos</h2>
+        <p class="step-desc">Configura las horas lectivas del turno escolar. Puedes aplicar una plantilla predefinida o personalizar cada franja.</p>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div class="form-group" style="flex: 1; max-width: 320px;">
+          <label for="select-slot-preset">Plantilla Horaria</label>
+          <select id="select-slot-preset" class="form-select">
+            <option value="afternoonFp">Turno Vespertino (15:45 – 21:35)</option>
+            <option value="morningStandard">Turno Matutino (08:00 – 14:00)</option>
+            <option value="morningContinuous">Turno Intensivo (08:00 – 13:50)</option>
+            <option value="custom">Personalizado</option>
+          </select>
+        </div>
+
+        <button type="button" class="btn btn-secondary" id="btn-add-slot">
+          <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          </svg>
+          <span>Añadir Franja</span>
+        </button>
+      </div>
+
+      <div class="time-slots-list" id="time-slots-container">
+        <!-- Renderizado dinámico de franjas -->
+      </div>
+    </section>
+
+    <!-- Paso 3: Asignaturas y Módulos -->
+    <section class="step-content-card" id="step-pane-3" style="display: none;">
+      <div class="step-header">
+        <h2 class="step-title">Asignaturas, Profesores y Colores</h2>
+        <p class="step-desc">Define los módulos que componen el curso, sus profesores, aulas asignadas y palabras clave para detectar entregas en Aules.</p>
+      </div>
+
+      <!-- Formulario para agregar asignatura -->
+      <div style="background: var(--bg-card-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-card); margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1.05rem; margin-bottom: 1rem; font-weight: 600;">Añadir Nueva Asignatura</h3>
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label for="input-sub-code">Código Identificador</label>
+            <input type="text" id="input-sub-code" class="form-input" placeholder="Ej: proye, anim, fol" />
+          </div>
+          <div class="form-group">
+            <label for="input-sub-name">Nombre de la Asignatura</label>
+            <input type="text" id="input-sub-name" class="form-input" placeholder="Ej: Realización de proyectos" />
+          </div>
+          <div class="form-group">
+            <label for="input-sub-legend">Nombre Corto / Leyenda</label>
+            <input type="text" id="input-sub-legend" class="form-input" placeholder="Ej: Proyectos" />
+          </div>
+          <div class="form-group">
+            <label for="input-sub-teacher">Profesorado / Código</label>
+            <input type="text" id="input-sub-teacher" class="form-input" placeholder="Ej: PTS 06" />
+          </div>
+          <div class="form-group">
+            <label for="input-sub-classroom">Aula / Taller</label>
+            <input type="text" id="input-sub-classroom" class="form-input" placeholder="Ej: Aula 3D · INF-1" />
+          </div>
+          <div class="form-group">
+            <label for="input-sub-color">Color Distintivo</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="color" id="input-sub-color" value="#0284c7" style="height: 40px; width: 60px; padding: 2px; border-radius: 6px; border: 1px solid var(--border-card); background: var(--bg-input); cursor: pointer;" />
+              <input type="text" id="input-sub-color-text" class="form-input" value="#0284c7" style="flex: 1;" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label for="input-sub-keywords">Palabras clave para Aules / Moodle (separadas por coma)</label>
+          <input type="text" id="input-sub-keywords" class="form-input" placeholder="Ej: proyectos, realització de projectes, pts 06" />
+          <span class="input-hint">El Tablero Kanban utilizará estas frases para asociar automáticamente las tareas que descargues de Aules</span>
+        </div>
+
+        <button type="button" class="btn btn-primary" id="btn-add-subject">
+          <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          </svg>
+          <span>Guardar Asignatura</span>
+        </button>
+      </div>
+
+      <!-- Lista de asignaturas registradas -->
+      <h3 style="font-size: 1.05rem; font-weight: 600; margin-bottom: 0.5rem;">Asignaturas Registradas (<span id="subject-count">0</span>)</h3>
+      <div class="subjects-container" id="subjects-list-container">
+        <!-- Tarjetas dinámicas de asignaturas -->
+      </div>
+    </section>
+
+    <!-- Paso 4: Cuadrícula Semanal (Horario de Lunes a Viernes) -->
+    <section class="step-content-card" id="step-pane-4" style="display: none;">
+      <div class="step-header">
+        <h2 class="step-title">Cuadrícula Semanal (Lunes a Viernes)</h2>
+        <p class="step-desc">Asigna cada módulo a sus franjas correspondientes. Si varias horas consecutivas pertenecen a la misma asignatura, el visor las agrupará de manera fluida.</p>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="schedule-grid-table">
+          <thead>
+            <tr>
+              <th style="width: 140px;">Franja</th>
+              <th>Lunes</th>
+              <th>Martes</th>
+              <th>Miércoles</th>
+              <th>Jueves</th>
+              <th>Viernes</th>
+            </tr>
+          </thead>
+          <tbody id="grid-table-tbody">
+            <!-- Celdas con selectores de asignaturas -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Paso 5: Validación, Descarga y Despliegue -->
+    <section class="step-content-card" id="step-pane-5" style="display: none;">
+      <div class="step-header">
+        <h2 class="step-title">Generación del Proyecto y Despliegue</h2>
+        <p class="step-desc">Comprueba la validación de tu curso y genera el archivo comprimido .ZIP listo para publicar en Cloudflare Pages.</p>
+      </div>
+
+      <!-- Alertas de validación -->
+      <div id="validation-box"></div>
+
+      <!-- Resumen de configuración -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+        <div style="background: var(--bg-card-subtle); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-card);">
+          <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Curso</div>
+          <div style="font-size: 1.1rem; font-weight: 700;" id="summary-course-name">-</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);" id="summary-course-sub">-</div>
+        </div>
+
+        <div style="background: var(--bg-card-subtle); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-card);">
+          <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Franjas y Asignaturas</div>
+          <div style="font-size: 1.1rem; font-weight: 700;" id="summary-slots-count">-</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);" id="summary-subjects-count">-</div>
+        </div>
+      </div>
+
+      <!-- Acciones de Descarga -->
+      <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+        <button type="button" class="btn btn-primary" id="btn-download-zip" style="padding: 0.85rem 1.75rem; font-size: 1.05rem;">
+          <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 22px; height: 22px;">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+          </svg>
+          <span>Descargar Proyecto (.ZIP)</span>
+        </button>
+
+        <button type="button" class="btn btn-secondary" id="btn-download-json">
+          <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+          </svg>
+          <span>Descargar course.config.json</span>
+        </button>
+      </div>
+
+      <!-- Guía de Despliegue en Cloudflare Pages -->
+      <div class="deployment-card">
+        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem;">Instrucciones de Despliegue (Cloudflare Pages Direct Upload)</h3>
+        <p style="font-size: 0.9rem; color: var(--text-secondary);">
+          El archivo .ZIP generado es una aplicación completa e independiente. Puedes alojarla gratis en tu propia cuenta de Cloudflare:
+        </p>
+        <ol>
+          <li>Descomprime el archivo descargado en una carpeta de tu ordenador.</li>
+          <li>Accede a tu panel de <span class="code-pill">dash.cloudflare.com</span> &gt; <strong>Workers &amp; Pages</strong>.</li>
+          <li>Haz clic en <strong>Create Application</strong> &gt; pestaña <strong>Pages</strong> &gt; <strong>Upload assets</strong>.</li>
+          <li>Arrastra la carpeta descomprimida y dale un nombre a tu proyecto.</li>
+          <li>En variables de entorno (opcional), añade <span class="code-pill">AULES_ICAL_URL</span> con la URL del calendario iCal de Moodle si deseas sincronización de entregas.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Barra de Navegación Inferior -->
+    <footer class="wizard-footer">
+      <button type="button" class="btn btn-secondary" id="btn-prev-step" style="visibility: hidden;">
+        <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+        </svg>
+        <span>Anterior</span>
+      </button>
+
+      <div style="font-size: 0.85rem; color: var(--text-muted);">
+        Paso <span id="current-step-indicator">1</span> de 5
+      </div>
+
+      <button type="button" class="btn btn-primary" id="btn-next-step">
+        <span>Siguiente</span>
+        <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+        </svg>
+      </button>
+    </footer>
+
+  </main>
+
+  <!-- Lógica orquestadora del asistente -->
+  <script type="module" src="./js/wizard.js"></script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+/**
+ * @file course.config.js
+ * @description Configuración declarativa del curso, franjas horarias, módulos, calendario y festivos.
+ * Generado automáticamente o editable para cada curso escolar.
+ */
+
+export default {
+  version: "1.0.0",
+  course: {
+    id: "cfgs-3d",
+    name: "Animaciones 3D, Juegos y Entornos Interactivos",
+    shortName: "CFGS 3D",
+    institution: "IES IESFP",
+    academicYear: "2026/2027",
+    termStart: "2026-09-08",
+    termEnd: "2027-06-22",
+    calendarFeedName: "Horario CFGS 3D",
+    calendarFeedDesc: "Horario oficial de clases de Animaciones 3D, Juegos y Entornos Interactivos"
+  },
+  timeSlots: [
+    { index: 1, start: "15:45", end: "16:40" },
+    { index: 2, start: "16:40", end: "17:35" },
+    { index: 3, start: "17:35", end: "18:30" },
+    { index: 4, start: "18:30", end: "18:50", isBreak: true, name: "Recreo" },
+    { index: 5, start: "18:50", end: "19:45" },
+    { index: 6, start: "19:45", end: "20:40" },
+    { index: 7, start: "20:40", end: "21:35" }
+  ],
+  subjects: {
+    proye: {
+      id: "proye",
+      name: "Realización de proyectos",
+      fullName: "Realización de proyectos multimèdia interactius",
+      meta: "PTS 06 · INF-1",
+      legend: "Proyectos",
+      teacher: "Profesorado Proyectos",
+      classroom: "Aula 3D",
+      colorVar: "--mod-proye",
+      color: "#0284c7",
+      aulesKeywords: [
+        "realització de projectes",
+        "realitzacio de projectes",
+        "projectes",
+        "realización de proyectos",
+        "realizacion de proyectos",
+        "proyectos",
+        "pts 06"
+      ]
+    },
+    color: {
+      id: "color",
+      name: "Color, iluminación y acabados",
+      fullName: "Color, il·luminació i acabats 2D i 3D",
+      meta: "PTS 01 / PTS 04 · INF-1",
+      legend: "Color e iluminación",
+      teacher: "Profesorado Color",
+      classroom: "Aula Color",
+      colorVar: "--mod-color",
+      color: "#b45309",
+      aulesKeywords: [
+        "color, il·luminació i acabats",
+        "color, il-luminacio",
+        "il·luminació",
+        "iluminació",
+        "color, iluminación y acabados",
+        "color e iluminación",
+        "iluminación",
+        "color",
+        "acabados"
+      ]
+    },
+    dibujo: {
+      id: "dibujo",
+      name: "Diseño, dibujo y modelado",
+      fullName: "Disseny, dibuix i modelatge per a animació",
+      meta: "PS SO 01 / PS SO 03 · INF-1",
+      legend: "Diseño y dibujo",
+      teacher: "Profesorado Modelado",
+      classroom: "Taller Dibujo",
+      colorVar: "--mod-dibujo",
+      color: "#6d28d9",
+      aulesKeywords: [
+        "disseny, dibuix i modelatge",
+        "dibuix",
+        "disseny",
+        "modelatge",
+        "diseño, dibujo y modelado",
+        "diseño y dibujo",
+        "dibujo",
+        "modelado"
+      ]
+    },
+    anim: {
+      id: "anim",
+      name: "Animación de elementos",
+      fullName: "Animació d'elements 2D i 3D",
+      meta: "PS SO 01 / PS SO 02 · INF-1",
+      legend: "Animación 2D/3D",
+      teacher: "Profesorado Animación",
+      classroom: "Lab Animación",
+      colorVar: "--mod-anim",
+      color: "#1d4ed8",
+      aulesKeywords: [
+        "animació d'elements",
+        "animació",
+        "animacion",
+        "animación de elementos",
+        "elementos 2d",
+        "animación 3d"
+      ]
+    },
+    fol: {
+      id: "fol",
+      name: "Itinerario personal",
+      fullName: "Itinerari personal per a l'ocupabilitat (FOL)",
+      meta: "FOL 04 · POLI 2",
+      legend: "Itinerario / FOL",
+      teacher: "Profesorado FOL",
+      classroom: "Aula Teórica",
+      colorVar: "--mod-fol",
+      color: "#047857",
+      aulesKeywords: [
+        "itinerari personal",
+        "itinerari per a l'ocupabilitat",
+        "itinerari",
+        "ocupabilitat",
+        "itinerario personal",
+        "itinerario para la empleabilidad",
+        "fol",
+        "empleabilidad"
+      ]
+    },
+    inter: {
+      id: "inter",
+      name: "Proyecto intermodular",
+      fullName: "Projecte intermodular",
+      meta: "PS SO 03 · INF-1",
+      legend: "Intermodular",
+      teacher: "Coordinación Intermodular",
+      classroom: "Aula 3D",
+      colorVar: "--mod-inter",
+      color: "#be185d",
+      aulesKeywords: [
+        "projecte intermodular",
+        "proyecto intermodular",
+        "intermodular"
+      ]
+    },
+    ingles: {
+      id: "ingles",
+      name: "Inglés profesional",
+      fullName: "Anglés professional",
+      meta: "ANG 02 · ANG 1",
+      legend: "Inglés",
+      teacher: "Profesorado Idiomas",
+      classroom: "Aula Idiomas",
+      colorVar: "--mod-ingles",
+      color: "#334155",
+      aulesKeywords: [
+        "anglés professional",
+        "anglés",
+        "angles",
+        "inglés profesional",
+        "ingles profesional",
+        "inglés",
+        "ingles",
+        "english",
+        "ang 02"
+      ]
+    },
+    recreo: {
+      id: "recreo",
+      name: "Recreo",
+      fullName: "Descanso común",
+      meta: "Descanso",
+      legend: "Recreo",
+      teacher: "",
+      classroom: "Patio / Cafetería",
+      colorVar: "--mod-recreo",
+      color: "#b45309",
+      isBreak: true,
+      aulesKeywords: []
+    }
+  },
+  weeklyGrid: {
+    1: ["proye", "color", "color", "recreo", "dibujo", "dibujo", "dibujo"],
+    2: ["fol", "inter", "proye", "recreo", "proye", "proye", "ingles"],
+    3: ["color", "color", "color", "recreo", "fol", "proye", "proye"],
+    4: ["anim", "anim", "anim", "recreo", "anim", "ingles", "fol"],
+    5: ["anim", "anim", "anim", "recreo", "anim", "dibujo", "dibujo"]
+  },
+  weeklyRaw: {
+    1: [
+      { mod: "proye", from: 0, to: 1 },
+      { mod: "color", from: 1, to: 3 },
+      { mod: "dibujo", from: 4, to: 7 }
+    ],
+    2: [
+      { mod: "fol", from: 0, to: 1 },
+      { mod: "inter", from: 1, to: 2 },
+      { mod: "proye", from: 2, to: 3 },
+      { mod: "proye", from: 4, to: 6 },
+      { mod: "ingles", from: 6, to: 7 }
+    ],
+    3: [
+      { mod: "color", from: 0, to: 3 },
+      { mod: "fol", from: 4, to: 5 },
+      { mod: "proye", from: 5, to: 7 }
+    ],
+    4: [
+      { mod: "anim", from: 0, to: 3 },
+      { mod: "anim", from: 4, to: 5 },
+      { mod: "ingles", from: 5, to: 6 },
+      { mod: "fol", from: 6, to: 7, meta: "FOL 04 · POLI 1" }
+    ],
+    5: [
+      { mod: "anim", from: 0, to: 3 },
+      { mod: "anim", from: 4, to: 5 },
+      { mod: "dibujo", from: 5, to: 7 }
+    ]
+  },
+  holidays: {
+    "2026-10-09": "Día de la Comunitat Valenciana",
+    "2026-10-12": "Fiesta Nacional de España",
+    "2026-11-01": "Todos los Santos",
+    "2026-11-02": "Día no lectivo (Todos los Santos)",
+    "2026-12-06": "Día de la Constitución",
+    "2026-12-07": "Puente de la Constitución",
+    "2026-12-08": "Inmaculada Concepción",
+    "2026-12-23": "Vacaciones de Navidad",
+    "2026-12-24": "Nochebuena",
+    "2026-12-25": "Navidad",
+    "2026-12-28": "Vacaciones de Navidad",
+    "2026-12-29": "Vacaciones de Navidad",
+    "2026-12-30": "Vacaciones de Navidad",
+    "2026-12-31": "Nochevieja",
+    "2027-01-01": "Año Nuevo",
+    "2027-01-04": "Vacaciones de Navidad",
+    "2027-01-05": "Vacaciones de Navidad",
+    "2027-01-06": "Epifanía del Señor (Reyes)",
+    "2027-01-22": "San Vicente Mártir",
+    "2027-03-15": "Semana Fallera",
+    "2027-03-16": "Semana Fallera",
+    "2027-03-17": "Semana Fallera",
+    "2027-03-18": "Semana Fallera",
+    "2027-03-19": "San José (Fallas)",
+    "2027-04-01": "Jueves Santo",
+    "2027-04-02": "Viernes Santo",
+    "2027-04-05": "Lunes de Pascua",
+    "2027-04-06": "Vacaciones de Pascua",
+    "2027-04-07": "Vacaciones de Pascua",
+    "2027-04-08": "Vacaciones de Pascua",
+    "2027-04-09": "Vacaciones de Pascua",
+    "2027-04-12": "San Vicente Ferrer",
+    "2027-05-01": "Fiesta del Trabajo"
+  }
+};

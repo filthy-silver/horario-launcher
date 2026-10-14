@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Horario Semanal - CFGS 3D</title>
+  
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+
+<div class="container">
+  <header class="top-bar">
+    <div>
+      <h1>Horario semanal</h1>
+      <p id="today-date"></p>
+    </div>
+    
+    <div class="header-actions">
+      <!-- Botón de Acceso a Tablero Kanban -->
+      <a href="/kanban.html" class="btn-kanban" title="Abrir tablero Kanban de entregas y tareas">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 4h4v14H3V4zm7 0h4v10h-4V4zm7 0h4v16h-4V4z"/>
+        </svg>
+        <span>Tablero</span>
+      </a>
+
+      <!-- Botón de Suscripción a Calendario -->
+      <button type="button" class="btn-calendar" id="btn-open-calendar" aria-haspopup="dialog" aria-expanded="false" title="Sincronizar con calendario externo">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 002 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z"/>
+        </svg>
+        <span>Calendario .ics</span>
+      </button>
+
+      <!-- Botón de Modo Administrador -->
+      <button type="button" class="btn-admin" id="btn-open-admin" aria-haspopup="dialog" aria-expanded="false" title="Acceso de profesor/delegado con PIN" aria-label="Acceso administrador">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+        </svg>
+        <span class="btn-admin-text">Admin</span>
+      </button>
+
+      <!-- Selector de Modo de Color -->
+      <div class="theme-selector" role="group" aria-label="Modo de color">
+        <button type="button" class="theme-btn" data-mode="auto">Auto</button>
+        <button type="button" class="theme-btn" data-mode="dark">Oscuro</button>
+        <button type="button" class="theme-btn" data-mode="light">Claro</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Panel Dinámico Ahora / Siguiente -->
+  <section class="status-panel" aria-live="polite" aria-label="Estado actual de la jornada">
+    <div class="status-card" id="card-now">
+      <div class="label">Ahora</div>
+      <div class="title" id="now-title">Cargando…</div>
+      <div class="meta" id="now-meta"></div>
+      <div class="timer" id="now-timer"></div>
+      <div class="progress" aria-hidden="true"><i id="now-progress"></i></div>
+    </div>
+    <div class="status-card" id="card-next">
+      <div class="label">Siguiente</div>
+      <div class="title" id="next-title">Cargando…</div>
+      <div class="meta" id="next-meta"></div>
+    </div>
+  </section>
+
+  <!-- Vista Móvil: Timeline vertical con WAI-ARIA Tabs -->
+  <section class="timeline-view" aria-label="Horario del día">
+    <nav class="day-tabs" id="day-tabs" role="tablist" aria-label="Días lectivos">
+      <button type="button" class="day-tab" data-day="1">Lun</button>
+      <button type="button" class="day-tab" data-day="2">Mar</button>
+      <button type="button" class="day-tab" data-day="3">Mié</button>
+      <button type="button" class="day-tab" data-day="4">Jue</button>
+      <button type="button" class="day-tab" data-day="5">Vie</button>
+    </nav>
+    <div class="timeline-list" id="timeline-list" role="tabpanel"></div>
+  </section>
+
+  <!-- Vista Escritorio: Tabla semanal completa -->
+  <main class="table-wrapper" tabindex="0" aria-label="Horario semanal completo">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Horario</th>
+          <th scope="col" data-day="1">Lunes</th>
+          <th scope="col" data-day="2">Martes</th>
+          <th scope="col" data-day="3">Miércoles</th>
+          <th scope="col" data-day="4">Jueves</th>
+          <th scope="col" data-day="5">Viernes</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </main>
+
+  <aside class="legend-bar" id="legend" aria-label="Leyenda de asignaturas"></aside>
+
+  <!-- Panel de Próximas Entregas (Aules / Moodle) -->
+  <section id="assignments-panel" class="assignments-panel" aria-label="Próximas entregas"></section>
+</div>
+
+<!-- Diálogo / Modal de Suscripción a Calendario (.ics) -->
+<div class="modal-backdrop" id="calendar-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-title">Sincronizar Calendario</h2>
+      <button type="button" class="modal-close" id="btn-close-calendar" aria-label="Cerrar diálogo">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Suscríbete desde tu móvil o aplicación favorita para que tu horario se actualice automáticamente en Google Calendar, Apple Calendar o Microsoft Outlook.</p>
+      
+      <div class="modal-feed-url">
+        <input type="text" id="feed-url-input" readonly aria-label="URL del feed iCal" />
+        <button type="button" id="btn-copy-feed">Copiar</button>
+      </div>
+
+      <div class="modal-actions">
+        <a id="btn-download-ics" class="modal-btn primary" download="horario_cfgs_3d.ics">Descargar .ics</a>
+        <a id="btn-add-google" class="modal-btn">Google Calendar</a>
+        <a id="btn-add-apple" class="modal-btn">Apple / Outlook</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Login con PIN de Administrador -->
+<div class="modal-backdrop" id="admin-login-modal" role="dialog" aria-modal="true" aria-labelledby="admin-login-title" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h2 class="modal-title" id="admin-login-title">Acceso Profesor / Delegado</h2>
+      <button type="button" class="modal-close" data-close-modal="admin-login-modal" aria-label="Cerrar diálogo">&times;</button>
+    </div>
+    <form id="admin-pin-form" class="modal-form">
+      <div class="modal-body">
+        <p>Introduce el PIN para publicar, editar o eliminar fechas de exámenes.</p>
+        <div class="form-group">
+          <label for="admin-pin-input">PIN de Cloudflare</label>
+          <input type="password" id="admin-pin-input" class="form-input" placeholder="Introduce el PIN" required autocomplete="current-password" inputmode="numeric" />
+        </div>
+        <div id="admin-pin-error" class="form-error" role="alert"></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn" data-close-modal="admin-login-modal">Cancelar</button>
+        <button type="submit" class="modal-btn primary">Validar PIN</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Sesión de Administrador Activa -->
+<div class="modal-backdrop" id="admin-session-modal" role="dialog" aria-modal="true" aria-labelledby="admin-session-title" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h2 class="modal-title" id="admin-session-title">Modo Administrador Activo</h2>
+      <button type="button" class="modal-close" data-close-modal="admin-session-modal" aria-label="Cerrar diálogo">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Tienes permisos para gestionar los exámenes del curso. Los cambios se sincronizan en la nube.</p>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn" id="btn-admin-logout">Cerrar sesión</button>
+      <button type="button" class="modal-btn primary" id="btn-session-add-exam">+ Publicar examen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Publicar / Editar Examen -->
+<div class="modal-backdrop" id="exam-form-modal" role="dialog" aria-modal="true" aria-labelledby="exam-form-title" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h2 class="modal-title" id="exam-form-title">Publicar Examen</h2>
+      <button type="button" class="modal-close" data-close-modal="exam-form-modal" aria-label="Cerrar diálogo">&times;</button>
+    </div>
+    <form id="exam-crud-form" class="modal-form">
+      <input type="hidden" id="exam-id-input" />
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="exam-title-input">Título del examen *</label>
+          <input type="text" id="exam-title-input" class="form-input" placeholder="Ej: Examen Parcial: Modelado 3D" required />
+        </div>
+        <div class="form-group">
+          <label for="exam-mod-select">Módulo / Asignatura *</label>
+          <select id="exam-mod-select" class="form-select" required>
+            <option value="">Cargando asignaturas…</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="exam-date-input">Fecha *</label>
+            <input type="date" id="exam-date-input" class="form-input" required />
+          </div>
+          <div class="form-group">
+            <label for="exam-time-input">Hora *</label>
+            <input type="time" id="exam-time-input" class="form-input" value="15:45" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="exam-notes-input">Aula / Observaciones (opcional)</label>
+          <input type="text" id="exam-notes-input" class="form-input" placeholder="Ej: Aula INF-1 · Bloque 1 y 2" />
+        </div>
+        <div id="exam-form-error" class="form-error" role="alert"></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn" data-close-modal="exam-form-modal">Cancelar</button>
+        <button type="submit" class="modal-btn primary">Guardar examen</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

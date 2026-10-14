@@ -1,0 +1,19 @@
+name = "h-cfgs-3d"
+main = "worker/index.js"
+compatibility_date = "2024-04-01"
+
+[assets]
+directory = "."
+
+[observability]
+enabled = true
+
+[vars]
+ENVIRONMENT = "production"
+TZ = "Europe/Madrid"
+
+# Almacenamiento distribuido KV para exámenes (/api/events) y vinculación de dispositivos (/api/sync)
+[[kv_namespaces]]
+binding = "EVENTS_KV"
+id = "578b0b0f295d45a5ac766ff9dcab596c"
+
